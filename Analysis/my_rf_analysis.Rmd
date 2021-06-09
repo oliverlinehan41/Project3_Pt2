@@ -1,0 +1,57 @@
+---
+title: "Random Forest Analysis"
+author: "Oliver Linehan"
+date: "6/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(randomForest)
+library(ggplot2)
+source(file = 'my_rf_cv.R')
+my_penguins <- read.csv(file = 'my_penguins.csv')
+
+cv_2 <- vector(mode = "numeric", length = 30)
+cv_5 <- vector(mode = "numeric", length = 30)
+cv_10 <- vector(mode = "numeric", length = 30)
+
+source(file = 'my_rf_cv.R')
+
+for (m in 1:30) {
+  cv_2[m] <- my_rf_cv(2)
+  cv_5[m] <- my_rf_cv(5)
+  cv_10[m] <- my_rf_cv(10)
+  
+}
+
+rf_df <- data.frame(folds = c(rep("2", 30), rep("5", 30), rep("10", 30)),
+                    mean_cv_se = c(cv_2, cv_5, cv_10))
+
+ggplot(data = rf_df, aes(x = reorder(folds, -mean_cv_se), y = mean_cv_se)) +
+  geom_boxplot(fill = "lightblue") +
+  theme_bw() +
+  labs(title = "Mean Cross-Validation Standard Error of K folds",
+       x = "Number of Folds",
+       y = "Mean Cross-Validation Standard Error") +
+  theme(plot.title = element_text(hjust = 0.5, size = 8),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10))
+
+ggsave(filename = "my_rf_cv_boxplot", path = "../Outputs/Figures")
+means <- c(mean(cv_2), mean(cv_5), mean(cv_10))
+stdvs <- c(sd(cv_2), sd(cv_5), sd(cv_10))
+rf_tab <- as.table(cbind(means, stdvs))
+rownames(rf_tab) <- c("k=2", "k=5", "k=10")
+rf_tab
+
+saveRDS(object = rf_tab, file = "my_rf_tab.rds")
+write.csv(rd_df, file = "my_rf_dta.csv")
+
+ 
+```
+With 2 folds, according to the boxplot, the standard error is higher than with 5 or 10 folds, and the spread appears much wider. 10 folds has the lowest standard error, and the narrowest spread. This is also represented table, where k=2 has the highest mean and highest standard deviation for cross-validation standard error, and k=10 has the lowest for each. The higher standard deviation for standard error for k=2 is likely because with fewer folds, there are fewer individual error components, so there is more variation in the data. The higher standard error itself is because k=10 is more fit to the data than k=2.
+
