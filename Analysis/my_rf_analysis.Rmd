@@ -12,13 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(randomForest)
 library(ggplot2)
-source(file = 'my_rf_cv.R')
+setwd("C:/Users/oline/OneDrive/Documents/STAT 302/projects/Project_3/Project3_Pt2/Project3_Pt2/Data")
 my_penguins <- read.csv(file = 'my_penguins.csv')
 
 cv_2 <- vector(mode = "numeric", length = 30)
 cv_5 <- vector(mode = "numeric", length = 30)
 cv_10 <- vector(mode = "numeric", length = 30)
 
+setwd("C:/Users/oline/OneDrive/Documents/STAT 302/projects/Project_3/Project3_Pt2/Project3_Pt2/Code")
 source(file = 'my_rf_cv.R')
 
 for (m in 1:30) {
@@ -41,15 +42,17 @@ ggplot(data = rf_df, aes(x = reorder(folds, -mean_cv_se), y = mean_cv_se)) +
         axis.title.x = element_text(size = 10),
         axis.title.y = element_text(size = 10))
 
-ggsave(filename = "my_rf_cv_boxplot", path = "../Outputs/Figures")
+setwd("C:/Users/oline/OneDrive/Documents/STAT 302/projects/Project_3/Project3_Pt2/Project3_Pt2/Outputs/Figures")
+ggsave(filename = "my_rf_cv_boxplot.pdf", device = "pdf")
 means <- c(mean(cv_2), mean(cv_5), mean(cv_10))
 stdvs <- c(sd(cv_2), sd(cv_5), sd(cv_10))
 rf_tab <- as.table(cbind(means, stdvs))
 rownames(rf_tab) <- c("k=2", "k=5", "k=10")
 rf_tab
 
+setwd("C:/Users/oline/OneDrive/Documents/STAT 302/projects/Project_3/Project3_Pt2/Project3_Pt2/Outputs/Results")
 saveRDS(object = rf_tab, file = "my_rf_tab.rds")
-write.csv(rd_df, file = "my_rf_dta.csv")
+write.csv(rf_df, file = "my_rf_dta.csv")
 
  
 ```
